@@ -270,5 +270,7 @@ class Solver:
 
 
 if __name__ == '__main__':
+    from pathlib import Path
+    Path("./results").mkdir(parents=True, exist_ok=True)
     s = Solver()
     s.solve()
