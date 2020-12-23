@@ -122,7 +122,7 @@ class Solver:
 
         assert target_year > 2005, "modelling year should be greater than 2005"
 
-        years = range(2006, target_year)
+        years = range(2006, target_year+1)
         fertility_start = 20
         fertility_end = 40
         prognosis_people = [people_2005]
@@ -146,10 +146,11 @@ class Solver:
 
         def evaluate_mp(param_values, year):
             with multiprocessing.Pool() as p:
-                chunk_size, extra = divmod(len(param_values), cpu_cnt)  # let each processor calc ~ equal data size
-                if extra:
-                    chunk_size += 1
-                Y = p.starmap(self.prognosis, map(lambda x: (year, *x), param_values), chunk_size)
+                # chunk_size, extra = divmod(len(param_values), cpu_cnt)  # let each processor calc ~ equal data size
+                # if extra:
+                #     chunk_size += 1
+                # Y = p.starmap(self.prognosis, map(lambda x: (year, *x), param_values), chunk_size)
+                Y = p.starmap(self.prognosis, map(lambda x: (year, *x), param_values))
                 return np.array(Y)
 
         # Define the model inputs
@@ -170,45 +171,26 @@ class Solver:
 
         # Generate samples
         print("generating samples...")
-        sample_count = 1000
+        sample_count = 500
         param_values = saltelli.sample(problem, sample_count)
         print("generation done.")
 
-        # import time
-        # def evaluate(param_values, year):
-        #     Y = []
-        #     for params in param_values:
-        #         Y.append(self.prognosis(year, *params))
-        #     return np.array(Y)
-        # cpu_cnt = os.cpu_count()
-        # for f in evaluate, evaluate_mp:
-        #     """
-        #     evaluate evaluate...
-        #     calc time: 510.3338315486908 sec
-        #     evaluate evaluate_mp...
-        #     calc time: 139.08048725128174 sec
-        #     """
-        #     print(f"evaluate {f.__name__}...")
-        #     start = time.time()
-        #     Y = f(param_values, 2015)
-        #     all = time.time() - start
-        #     del Y
-        #     print(f"calc time: {all} sec")
-
-        # Run model (example)
-        test_years = [2015, 2025, 2055, 2105]
+        # Run model
         cpu_cnt = os.cpu_count()
         print(f"using {cpu_cnt} processors")
+        test_years = [2015, 2025, 2055, 2105]
         for year in test_years:
             print(f"processing year: {year}")
-            print("start evaluation")
             Y = evaluate_mp(param_values, year).flatten()
+            print("start evaluation")
             # Perform analysis
             print("start analysis")
             Si = sobol.analyze(problem, Y, print_to_console=False)
             print(f"{year} result: ")
             # Print the first-order sensitivity indices
             print(Si['S1'])
+            print(sum(Si['S1']))
+            del Y
 
     def determine_ranges(self):
         pass
