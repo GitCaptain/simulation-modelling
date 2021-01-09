@@ -103,7 +103,13 @@ class Statistics:
             Sawt = Statistics.MetricsEnum.average_waiting_time
             Swp = Statistics.MetricsEnum.waiting_probability
             Scs = Statistics.MetricsEnum.clients_served
-            for pair in ((awt, Sawt), (wp, Swp), (cs, Scs)):
+
+            if best[Scs.value][0] is None or cs.value > best[Scs.value][0]:
+                best[Scs.value][0] = cs.value
+                best[Scs.value][1] = cs.name
+                best[Scs.value][2] = system_type.name
+
+            for pair in ((awt, Sawt), (wp, Swp)): #, (cs, Scs)):
                 possible, cur = pair
                 if best[cur.value][0] is None or possible.value < best[cur.value][0]:
                     best[cur.value][0] = possible.value
