@@ -178,7 +178,7 @@ def modelling(system_type, time_limit, servers, arrivals, threshold=None):
                 if queue.qsize() > threshold[1]:
                     server_list.append(Server())
 
-            for server in filter(lambda x: x.is_free(global_time), server_list):
+            for server in filter(lambda server: server.is_free(global_time), server_list):
                 if not queue.empty():
                     update(queue, server)
                 else:
@@ -201,7 +201,7 @@ def main():
     :return:
     """
 
-    modelling_time = 1000  # in seconds
+    modelling_time = 10000  # in seconds
     number_of_servers = 10
     arrival_rate = 3.33  # person per second
     threshold_mn = 3  # min people in queue (del server)
@@ -228,6 +228,7 @@ def main():
                 client_arrival_times.append(t)
 
     statistics = [None for _ in systemType]
+
     for s_type in systemType:
         s = modelling(s_type,
                       modelling_time,
